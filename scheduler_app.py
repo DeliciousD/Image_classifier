@@ -2,6 +2,7 @@ import streamlit as st
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
+from PIL import Image
 
 """
 # Here's a pointless slider
@@ -44,12 +45,8 @@ try:
 except FileNotFoundError:
     st.error('File not found.')
 
-image = st.file_uploader('Give us a file')
-image = image.getvalue()
 
-
-image = np.frombuffer(image, dtype=np.uint32)
-
-fig_2 = plt.figure(figsize=(9, 5))
-plt.imshow(image)
-# st.pyplot(fig_2)
+uploaded_file = st.file_uploader('Gis us an image', type="jpg")
+if uploaded_file is not None:
+    image = Image.open(uploaded_file)
+    st.image(image, caption='Uploaded Image.', use_column_width=True)

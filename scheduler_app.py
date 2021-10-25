@@ -43,3 +43,13 @@ try:
         st.text(input.read())
 except FileNotFoundError:
     st.error('File not found.')
+
+image = st.file_uploader('Give us a file')
+image = image.getvalue()
+
+
+image = np.frombuffer(image, dtype=np.uint32)
+
+fig_2 = plt.figure(figsize=(9, 5))
+plt.imshow(image)
+# st.pyplot(fig_2)

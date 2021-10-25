@@ -3,50 +3,42 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 from PIL import Image
+import json
+from tensorflow.keras.applications import EfficientNetB0, EfficientNetB1, EfficientNetB2, \
+    EfficientNetB3, EfficientNetB4, EfficientNetB5, EfficientNetB6, EfficientNetB7
 
 """
-# Here's a pointless slider
+# Image Classification
 """
+
+networks = [EfficientNetB0, EfficientNetB1, EfficientNetB2, EfficientNetB3, EfficientNetB4, EfficientNetB5, EfficientNetB6, EfficientNetB7]
+networks_string = [network.__name__ for idx, network in enumerate(networks)]
+input_size = [224, 240, 260, 300, 380, 456, 528, 600]
+
+network_dict = dict(zip(networks_string, networks))
+shape_dict = dict(zip(networks_string, input_size))
+
+network = st.select_slider(label='Network architecture', options=networks_string)
+
 
 @st.cache
-def squared(x):
-    return x * x
+def load_network(network):
+    return network_dict[network](weights='imagenet')
 
-x = st.slider('x')
-st.write(x, 'squared is', squared(x))
+model = load_network(network)
 
-"""
-# Next is a pointless dataframe
-"""
+with open('imagenet-simple-labels.json') as f:
+    labels = json.load(f)
 
-df = pd.read_csv('DB.csv')
-
-st.dataframe(df)
-
-"""
-# A pointless plot to go with
-"""
-
-fig_1 = plt.figure(figsize=(9, 5))
-plt.plot(df['Col1'], df['Col2'])
-st.pyplot(fig_1)
-
-
-"""
-Everything is better with Rick, or is it?
-"""
-
-st.image('rick.jpg')
-
-filename = st.text_input(label='Enter a file path:', value='C:/Users/danie/Documents/DW/Scheduler/text_simple.txt')
-try:
-    with open(filename) as input:
-        st.text(input.read())
-except FileNotFoundError:
-    st.error('File not found.')
-
-
-uploaded_file = st.file_uploader('Gis us an image', type="jpg")
+uploaded_file = st.file_uploader('', type="jpg")
 if uploaded_file is not None:
-    image = Image.open(uploaded_file)
-    st.image(image, caption='Uploaded Image.', use_column_width=True)
+    img = Image.open(uploaded_file)
+    image = img.resize((shape_dict[network], shape_dict[network]))
+    image = np.expand_dims(image, axis=0)
+
+    prediction = model.predict(image)
+    prediction = labels[prediction.argmax()]
+
+    caption = 'Model used: {N}\nPrediction: {P}'.format(N=network, P=prediction)
+    st.image(img, caption=caption, use_column_width=True)
+

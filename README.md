@@ -4,4 +4,4 @@
 
 An app used for image classification, simply upload a jpg image.
 
-This is designed just as a test of the app framework streamlit
+This is designed just as a test of the app framework streamlit (https://streamlit.io/)
